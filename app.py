@@ -1,34 +1,30 @@
 import itertools
-import pymouse
+import logging
 import time
+import pyautogui
 from numpy.random import normal
-from utils import getArgs, getLogger
+from utils import getArgs
 
+logging.basicConfig(format='[%(asctime)s] %(levelname)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S',
+                    level=logging.DEBUG)
 
-def main(args, logger):
-    mouse = pymouse.PyMouse()
-
+def main(args):
     times = args.sleep_times
     if args.cyclic:
         times = itertools.cycle(times)
-
     for i in times:
-        sleep_time = normal(i, args.gaussian)
-        logger.debug("Sleeping for %.2f seconds..." % sleep_time)
-        time.sleep(normal(i, 1))
-        logger.debug("Click.")
-        x, y = mouse.position()
-        mouse.click(x, y)
-
+        sleep_time = abs(normal(i, args.gaussian))
+        logging.debug("Sleeping for %.2f seconds..." % sleep_time)
+        time.sleep(sleep_time)
+        pyautogui.click()
+        logging.debug("Click!")
 
 if __name__ == "__main__":
     args = getArgs()
-    logger = getLogger(args)
-
-    logger.info('Program started...')
-    logger.info("Sleep times: %s" % args.sleep_times)
-    logger.info("Cyclic mode: %s" % ("off", "on")[args.cyclic])
-    logger.info("Verbose mode: %s" % ("off", "on")[args.verbose])
-    logger.info("Gaussian mode: %s" % ("off", "on")[args.gaussian])
-
-    main(args, logger)
+    logging.info('Program started...')
+    logging.info("Sleep times: %s" % args.sleep_times)
+    logging.info("Cyclic mode: %s" % ("off", "on")[args.cyclic])
+    logging.info("Verbose mode: %s" % ("off", "on")[args.verbose])
+    logging.info("Gaussian mode: %s" % ("off", "on")[args.gaussian])
+    main(args)
