@@ -27,24 +27,3 @@ def getArgs():
                         action='store_true',
                         default=False)
     return parser.parse_args()
-
-
-def getLogger(args):
-    # create logger
-    logger = logging.getLogger('autoclicker')
-    if args.verbose:
-        logger.setLevel(logging.DEBUG)
-    else:
-        logger.setLevel(logging.INFO)
-
-    # create console handler
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-
-    # create formatter
-    formatter = logging.Formatter(
-                    '[%(asctime)s] - %(name)s - %(levelname)s - %(message)s',
-                    '%Y-%m-%d %H:%M:%S',)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-    return logger
