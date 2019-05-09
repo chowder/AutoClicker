@@ -1,12 +1,9 @@
 package com.chowder;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Utilities;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -32,18 +29,19 @@ public class AutoClicker {
         JFrame frame = new JFrame(TITLE);
         setupFrame(frame);
 
-        //Creating the panel at bottom and adding components
-        JPanel panel = new JPanel();
-        setupPanel(panel);
+        //Creating the panel at bottom
+        JPanel bottom_panel = new JPanel();
+        setupBottomPanel(bottom_panel);
 
         //Creating main console area
         JScrollPane scroll_pane = new JScrollPane();
         setupScrollPane(scroll_pane);
 
-        //Adding Components to the frame.
-        frame.add(panel, BorderLayout.SOUTH);
+        //Adding the components to the frame.
+        frame.add(bottom_panel, BorderLayout.SOUTH);
         frame.add(scroll_pane, BorderLayout.CENTER);
 
+        // View the frame
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
@@ -71,13 +69,14 @@ public class AutoClicker {
                 selectedItem(ta);
             }
         });
-        controller.setConsole(ta);
+        controller.setDisplay(ta);
     }
 
-    private static void setupPanel(JPanel main_panel) {
+    private static void setupBottomPanel(JPanel main_panel) {
         main_panel.setLayout(new GridLayout(0, 1));
         main_panel.add(intervalPanel());
         main_panel.add(startStopPanel());
+        main_panel.add(consolePanel());
     }
 
     private static JPanel intervalPanel() {
@@ -119,6 +118,14 @@ public class AutoClicker {
             }
         });
         panel.add(start);
+        return panel;
+    }
+
+    private static JPanel consolePanel() {
+        JPanel panel = new JPanel();
+        JLabel console = new JLabel();
+        controller.setConsole(console);
+        panel.add(console);
         return panel;
     }
 

@@ -9,7 +9,8 @@ import java.util.List;
 class Controller {
 
     private List<Float> intervals = new ArrayList<>();
-    private JTextArea console;
+    private JTextArea display;
+    private JLabel console;
     private Clicker clicker;
 
     void addInterval(String interval) {
@@ -20,17 +21,21 @@ class Controller {
                 System.out.println("Invalid input given.");
                 return;
             }
-            console.append(String.format("Wait %s seconds - Click\n", interval));
+            display.append(String.format("Wait %s seconds - Click\n", interval));
         }
     }
 
-    void setConsole(JTextArea console) {
+    void setDisplay(JTextArea display) {
+        this.display = display;
+    }
+
+    void setConsole(JLabel console) {
         this.console = console;
     }
 
     void reset() {
         intervals.clear();
-        console.setText("");
+        display.setText("");
     }
 
     void stop() {
@@ -39,21 +44,9 @@ class Controller {
 
     void start() {
         try {
-            clicker = new Clicker(intervals, this);
+            clicker = new Clicker(intervals, console, display);
             clicker.start();
         } catch (AWTException e) {
-            e.printStackTrace();
-        }
-    }
-
-    void highlightRow(int i) {
-        try {
-            int start = console.getLineStartOffset(i);
-            int end = console.getLineEndOffset(i);
-            console.requestFocus();
-            console.setSelectionStart(start);
-            console.setSelectionEnd(end);
-        } catch (BadLocationException e) {
             e.printStackTrace();
         }
     }
