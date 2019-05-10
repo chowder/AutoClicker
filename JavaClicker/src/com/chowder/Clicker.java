@@ -10,36 +10,49 @@ import java.util.Random;
 class Clicker extends Thread {
 
     final private Robot clickEngine = new Robot();
-    final private static long MOUSE_DELAY = 20;  // milliseconds
-    final private static long GAUSSIAN_FACTOR = 2;
+    final private static long MOUSE_DELAY = 100;  // milliseconds
+    final private static float GAUSSIAN_FACTOR = 0.1f;
 
-    private boolean _gaussianMode = false;
+    private boolean gaussian;
+    private boolean cyclic;
     private List<Float> intervals;
     private final JLabel console;
     private final JTextArea display;
 
-    Clicker(List<Float> intervals, JLabel console, JTextArea display) throws AWTException {
+    Clicker(List<Float> intervals, JLabel console, JTextArea display, boolean gaussian, boolean cyclic)
+            throws AWTException {
         this.intervals = intervals;
         this.console = console;
         this.display = display;
+        this.gaussian = gaussian;
+        this.cyclic = cyclic;
     }
 
     public void run() {
-        if (intervals.size() != 0) {
+        try {
             console.setText("Clicker thread is running...");
-            try {
-                for (int i = 0; i < intervals.size(); i++) {
-                    highlightRow(i);
-                    long sleep_time = getRandom(intervals.get(i).longValue() * 1000);
-                    Thread.sleep(sleep_time);
-                    click();
-                }
-            } catch (InterruptedException e) {
-                console.setText("Clicker thread stopped");
+            for (int i = 0; i < intervals.size(); i++) {
+                highlightRow(i);
+
+                // Get sleep time
+                long sleep_time = intervals.get(i).longValue() * 1000;
+                if (gaussian) sleep_time = getRandom(sleep_time);
+
+                // Sleep thread
+                console.setText("Sleeping for " + (float) sleep_time / 1000 + "s");
+                Thread.sleep(sleep_time);
+
+                // Click
+                click();
+
+                // Reset `i` if cyclic
+                if (cyclic && i == intervals.size() - 1) i = -1;
             }
-        } else {
-            console.setText("Add some intervals before starting");
+        } catch (InterruptedException e) {
+            console.setText("Clicker thread stopped");
+            return;
         }
+        console.setText("Click sequence completed");
     }
 
     private void click() throws InterruptedException {
@@ -50,7 +63,7 @@ class Clicker extends Thread {
 
     private static long getRandom(long mean) {
         Random r = new Random();
-        return Math.abs((long)r.nextGaussian() * GAUSSIAN_FACTOR + mean);
+        return (long)Math.abs(r.nextGaussian() * (mean * GAUSSIAN_FACTOR) + mean);
     }
 
     private void highlightRow(int i) {
