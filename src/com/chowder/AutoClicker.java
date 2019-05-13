@@ -1,6 +1,5 @@
 package com.chowder;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
@@ -19,11 +18,10 @@ public class AutoClicker {
     final private static int FONT_SIZE = 12;
 
     private static List<Component> toggleables = new ArrayList<Component>();
-    private static JLabel console;
 
     final private static Controller controller = new Controller();
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         // Setup our theme
         try {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
@@ -53,8 +51,6 @@ public class AutoClicker {
     }
 
     private static void setupFrame(JFrame frame) {
-        Image icon = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB_PRE);
-        frame.setIconImage(icon);
         frame.setTitle(TITLE);
         frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         frame.setLayout(new BorderLayout());
@@ -80,6 +76,7 @@ public class AutoClicker {
         main_panel.setLayout(new GridLayout(0, 1));
         main_panel.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
         main_panel.add(intervalPanel());
+        main_panel.add(removeClearPanel());
         main_panel.add(settingsPanel());
         main_panel.add(startStopPanel());
         main_panel.add(consolePanel());
@@ -109,11 +106,23 @@ public class AutoClicker {
         toggleables.add(add);
         panel.add(add);
 
+        return panel;
+    }
+
+    private static JPanel removeClearPanel() {
+        JPanel panel = new JPanel();
+
+        // Add remove button
+        JButton remove = new JButton("Remove");
+        remove.addActionListener(e -> controller.remove());
+        toggleables.add(remove);
+        panel.add(remove);
+
         // Add reset button
-        JButton reset = new JButton("Reset");
-        reset.addActionListener(e -> controller.reset());
-        toggleables.add(reset);
-        panel.add(reset);
+        JButton clear = new JButton("Clear");
+        clear.addActionListener(e -> controller.clear());
+        toggleables.add(clear);
+        panel.add(clear);
         return panel;
     }
 
@@ -162,7 +171,7 @@ public class AutoClicker {
 
     private static JPanel consolePanel() {
         JPanel panel = new JPanel();
-        console = new JLabel();
+        JLabel console = new JLabel();
         controller.setConsole(console);
         panel.add(console);
         return panel;

@@ -36,9 +36,10 @@ class Controller {
         this.console = console;
     }
 
-    void reset() {
+    void clear() {
         intervals.clear();
         display.setText("");
+        console.setText("Cleared all intervals");
     }
 
     void stop() {
@@ -67,5 +68,22 @@ class Controller {
     void setCyclic(boolean cyclic) {
         console.setText("Cyclic mode " + (cyclic ? "enabled" : "disabled"));
         this.cyclic = cyclic;
+    }
+
+    void remove() {
+        try {
+            // Get position and line of caret
+            int pos = display.getCaretPosition();
+            int line = display.getLineOfOffset(pos);
+            // Get start and end of said lines
+            int start = display.getLineStartOffset(line);
+            int end = display.getLineEndOffset(line);
+            // Remove the line and interval
+            display.replaceRange("", start, end);
+            intervals.remove(line);
+            console.setText("Interval removed");
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
     }
 }
