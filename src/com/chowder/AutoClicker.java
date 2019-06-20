@@ -12,12 +12,12 @@ import java.awt.event.MouseEvent;
 public class AutoClicker {
 
     final private static String TITLE = "Autoclicker";
-    final private static int WINDOW_WIDTH = 300;
+    final private static int WINDOW_WIDTH = 275;
     final private static int WINDOW_HEIGHT = 475;
     final private static String MONOSPACE_FONT = "Courier New";
     final private static int FONT_SIZE = 12;
 
-    private static List<Component> toggleables = new ArrayList<Component>();
+    private static List<Component> toggles = new ArrayList<>();
 
     final private static Controller controller = new Controller();
 
@@ -94,7 +94,7 @@ public class AutoClicker {
             controller.addInterval(tf.getText());
             tf.setText("");
         });
-        toggleables.add(tf);
+        toggles.add(tf);
         panel.add(tf);
 
         // Add add button
@@ -103,7 +103,7 @@ public class AutoClicker {
             controller.addInterval(tf.getText());
             tf.setText("");
         });
-        toggleables.add(add);
+        toggles.add(add);
         panel.add(add);
 
         return panel;
@@ -115,13 +115,13 @@ public class AutoClicker {
         // Add remove button
         JButton remove = new JButton("Remove");
         remove.addActionListener(e -> controller.remove());
-        toggleables.add(remove);
+        toggles.add(remove);
         panel.add(remove);
 
         // Add reset button
         JButton clear = new JButton("Clear");
         clear.addActionListener(e -> controller.clear());
-        toggleables.add(clear);
+        toggles.add(clear);
         panel.add(clear);
         return panel;
     }
@@ -131,21 +131,17 @@ public class AutoClicker {
 
         // Add randomisation checkbox
         JCheckBox randomToggle = new JCheckBox("Randomise");
-        randomToggle.addActionListener(e -> {
-            controller.setGaussian(randomToggle.isSelected());
-        });
+        randomToggle.addActionListener(e -> controller.setGaussian(randomToggle.isSelected()));
         panel.add(randomToggle);
 
         // Add cyclic checkbox
         JCheckBox cyclicToggle = new JCheckBox("Repeat");
-        cyclicToggle.addActionListener(e -> {
-            controller.setCyclic(cyclicToggle.isSelected());
-        });
+        cyclicToggle.addActionListener(e -> controller.setCyclic(cyclicToggle.isSelected()));
         panel.add(cyclicToggle);
 
         // Add it to our things to disable
-        toggleables.add(randomToggle);
-        toggleables.add(cyclicToggle);
+        toggles.add(randomToggle);
+        toggles.add(cyclicToggle);
         return panel;
     }
 
@@ -190,10 +186,10 @@ public class AutoClicker {
     }
 
     private static void disableButtons() {
-        toggleables.forEach(component -> component.setEnabled(false));
+        toggles.forEach(component -> component.setEnabled(false));
     }
 
     private static void enableButtons() {
-        toggleables.forEach(component -> component.setEnabled(true));
+        toggles.forEach(component -> component.setEnabled(true));
     }
 }
