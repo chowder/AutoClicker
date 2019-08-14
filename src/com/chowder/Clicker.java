@@ -70,7 +70,6 @@ class Clicker extends Thread {
         try {
             int start = display.getLineStartOffset(i);
             int end = display.getLineEndOffset(i);
-            display.requestFocus();
             display.setSelectionStart(start);
             display.setSelectionEnd(end);
         } catch (BadLocationException e) {
