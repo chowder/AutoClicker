@@ -17,13 +17,13 @@ class Clicker extends Thread {
     private boolean cyclic;
     private List<Float> intervals;
     private final JLabel console;
-    private final JTextArea display;
+    private final JList<String> list;
 
-    Clicker(List<Float> intervals, JLabel console, JTextArea display, boolean gaussian, boolean cyclic)
+    Clicker(List<Float> intervals, JLabel console, JList<String> display, boolean gaussian, boolean cyclic)
             throws AWTException {
         this.intervals = intervals;
         this.console = console;
-        this.display = display;
+        this.list = display;
         this.gaussian = gaussian;
         this.cyclic = cyclic;
     }
@@ -32,8 +32,7 @@ class Clicker extends Thread {
         try {
             console.setText("Clicker thread is running...");
             for (int i = 0; i < intervals.size(); i++) {
-                highlightRow(i);
-
+            	highlightRow(i);
                 // Get sleep time
                 long sleep_time = intervals.get(i).longValue() * 1000;
                 if (gaussian) sleep_time = getRandom(sleep_time);
@@ -67,13 +66,6 @@ class Clicker extends Thread {
     }
 
     private void highlightRow(int i) {
-        try {
-            int start = display.getLineStartOffset(i);
-            int end = display.getLineEndOffset(i);
-            display.setSelectionStart(start);
-            display.setSelectionEnd(end);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
+    	list.setSelectedIndex(i);
     }
 }

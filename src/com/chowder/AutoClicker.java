@@ -3,6 +3,7 @@ package com.chowder;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Utilities;
 import java.awt.*;
@@ -15,7 +16,7 @@ public class AutoClicker {
     final private static int WINDOW_WIDTH = 275;
     final private static int WINDOW_HEIGHT = 475;
     final private static String MONOSPACE_FONT = "Courier New";
-    final private static int FONT_SIZE = 12;
+    final private static int FONT_SIZE = 14;
 
     private static List<Component> toggles = new ArrayList<>();
 
@@ -58,18 +59,14 @@ public class AutoClicker {
     }
 
     private static void setupDisplayPanel(JScrollPane panel) {
-        JTextArea ta = new JTextArea();
-        ta.setEditable(false);
-        ta.setMargin(new Insets(10, 10, 10, 10));
-        ta.setFont(new Font(MONOSPACE_FONT, Font.PLAIN, FONT_SIZE));
-        ta.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                selectedItem(ta);
-            }
-        });
-        controller.setDisplay(ta);
-        panel.setViewportView(ta);
+        DefaultListModel<String> listModel = new DefaultListModel<>();
+        JList<String> list = new JList<>(listModel);
+        list.setBorder(new EmptyBorder(10, 10, 10, 10));
+        list.setFixedCellHeight(20);
+        list.setFont(new Font(MONOSPACE_FONT, Font.PLAIN, FONT_SIZE));
+        controller.setDisplayList(list);
+        controller.setListModel(listModel);
+        panel.setViewportView(list);
     }
 
     private static void setupBottomPanel(JPanel main_panel) {
