@@ -1,10 +1,8 @@
 package com.chowder;
 
 import javax.swing.*;
-import javax.swing.text.BadLocationException;
 import java.awt.*;
 import java.awt.event.InputEvent;
-import java.util.List;
 import java.util.Random;
 
 class Clicker extends Thread {
@@ -15,15 +13,15 @@ class Clicker extends Thread {
 
     private boolean gaussian;
     private boolean cyclic;
-    private List<Float> intervals;
+    private DefaultListModel<Interval> intervals;
     private final JLabel console;
-    private final JList<String> list;
+    private final JList<Interval> list;
 
-    Clicker(List<Float> intervals, JLabel console, JList<String> display, boolean gaussian, boolean cyclic)
+    Clicker(DefaultListModel<Interval> intervals, JLabel console, JList<Interval> list, boolean gaussian, boolean cyclic)
             throws AWTException {
         this.intervals = intervals;
         this.console = console;
-        this.list = display;
+        this.list = list;
         this.gaussian = gaussian;
         this.cyclic = cyclic;
     }
@@ -34,7 +32,7 @@ class Clicker extends Thread {
             for (int i = 0; i < intervals.size(); i++) {
             	highlightRow(i);
                 // Get sleep time
-                long sleep_time = intervals.get(i).longValue() * 1000;
+                long sleep_time = (long) (intervals.get(i).value * 1000);
                 if (gaussian) sleep_time = getRandom(sleep_time);
 
                 // Sleep thread

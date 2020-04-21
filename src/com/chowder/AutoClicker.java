@@ -1,22 +1,17 @@
 package com.chowder;
 
+import com.chowder.Components.AppControls;
+import com.chowder.Components.AppControlsComponent;
+import com.chowder.Components.AppDisplayComponent;
+import com.chowder.Components.AppFrameComponent;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Utilities;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class AutoClicker {
 
-    final private static String TITLE = "Autoclicker";
-    final private static int WINDOW_WIDTH = 275;
-    final private static int WINDOW_HEIGHT = 475;
-    final private static String MONOSPACE_FONT = "Courier New";
-    final private static int FONT_SIZE = 14;
+    final private static String TITLE = "Bakery";
 
     private static List<Component> toggles = new ArrayList<>();
 
@@ -30,84 +25,57 @@ public class AutoClicker {
             e.printStackTrace();
         }
 
-        //Creating the Frame
-        JFrame frame = new JFrame();
-        setupFrame(frame);
+        AppFrameComponent frame = new AppFrameComponent(TITLE);
+		AppDisplayComponent display = new AppDisplayComponent();
+		AppControlsComponent controls = new AppControlsComponent();
 
-        //Creating the panel at bottom
-        JPanel bottom_panel = new JPanel();
-        setupBottomPanel(bottom_panel);
-
-        //Creating display area
-        JScrollPane display = new JScrollPane();
-        setupDisplayPanel(display);
+        //Creating bottom component
+        JPanel bottom = createControlsPanel();
 
         //Adding the components to the frame.
-        frame.add(bottom_panel, BorderLayout.SOUTH);
-        frame.add(display, BorderLayout.CENTER);
+        frame.add(display);
+        frame.add(bottom);
+
+		controller.setDisplayList(display.list);
+		controller.setIntervals(display.listModel);
 
         // View the frame
+		frame.pack();
         frame.setVisible(true);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    private static void setupFrame(JFrame frame) {
-        frame.setTitle(TITLE);
-        frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-        frame.setLayout(new BorderLayout());
-        frame.setResizable(false);
-    }
-
-    private static void setupDisplayPanel(JScrollPane panel) {
-        DefaultListModel<String> listModel = new DefaultListModel<>();
-        JList<String> list = new JList<>(listModel);
-        list.setBorder(new EmptyBorder(10, 10, 10, 10));
-        list.setFixedCellHeight(20);
-        list.setFont(new Font(MONOSPACE_FONT, Font.PLAIN, FONT_SIZE));
-        controller.setDisplayList(list);
-        controller.setListModel(listModel);
-        panel.setViewportView(list);
-    }
-
-    private static void setupBottomPanel(JPanel main_panel) {
-        main_panel.setLayout(new GridLayout(0, 1));
-        main_panel.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
-        main_panel.add(intervalPanel());
-        main_panel.add(removeClearPanel());
-        main_panel.add(settingsPanel());
-        main_panel.add(startStopPanel());
-        main_panel.add(consolePanel());
-    }
-
-    private static JPanel intervalPanel() {
-        JPanel panel = new JPanel();
-
-        // Add field description
-        panel.add(new JLabel("New Interval"));
-
-        // Add text field
-        JTextField tf = new JTextField(5); // accepts up to 5 characters
-        tf.addActionListener(e -> {
-            controller.addInterval(tf.getText());
-            tf.setText("");
-        });
-        toggles.add(tf);
-        panel.add(tf);
-
-        // Add add button
-        JButton add = new JButton("Add");
-        add.addActionListener(e -> {
-            controller.addInterval(tf.getText());
-            tf.setText("");
-        });
-        toggles.add(add);
-        panel.add(add);
-
+    private static JPanel createControlsPanel() {
+    	JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(0,10,10,10));
+        panel.add(intervalsPanel());
+        panel.add(settingsPanel());
+        panel.add(startStopPanel());
+        panel.add(consolePanel());
         return panel;
     }
 
-    private static JPanel removeClearPanel() {
+    private static JPanel intervalsPanel() {
         JPanel panel = new JPanel();
+        panel.setBorder(BorderFactory.createTitledBorder("Intervals"));
+
+		// Add text field
+		JTextField tf = new JTextField(5); // accepts up to 5 characters
+		tf.addActionListener(e -> {
+			controller.addInterval(tf.getText());
+			tf.setText("");
+		});
+		toggles.add(tf);
+		panel.add(tf);
+
+		// Add add button
+		JButton add = new JButton("Add");
+		add.addActionListener(e -> {
+			controller.addInterval(tf.getText());
+			tf.setText("");
+		});
+		toggles.add(add);
+		panel.add(add);
 
         // Add remove button
         JButton remove = new JButton("Remove");
@@ -125,9 +93,10 @@ public class AutoClicker {
 
     private static JPanel settingsPanel() {
         JPanel panel = new JPanel();
+        panel.setBorder(BorderFactory.createTitledBorder("Settings"));
 
         // Add randomisation checkbox
-        JCheckBox randomToggle = new JCheckBox("Randomise");
+        JCheckBox randomToggle = new JCheckBox("Random");
         randomToggle.addActionListener(e -> controller.setGaussian(randomToggle.isSelected()));
         panel.add(randomToggle);
 
@@ -162,24 +131,12 @@ public class AutoClicker {
         return panel;
     }
 
-    private static JPanel consolePanel() {
+    private static JComponent consolePanel() {
         JPanel panel = new JPanel();
-        JLabel console = new JLabel();
+        JLabel console = new JLabel("Application started");
         controller.setConsole(console);
         panel.add(console);
         return panel;
-    }
-
-    private static void selectedItem(JTextArea ta) {
-        int pos = ta.getCaretPosition();
-        try {
-            int start = Utilities.getRowStart(ta, pos);
-            int end = Utilities.getRowEnd(ta, pos);
-            ta.setSelectionStart(start);
-            ta.setSelectionEnd(end);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
     }
 
     private static void disableButtons() {
