@@ -1,5 +1,15 @@
 package com.chowder.Components.Controls;
 
-public class ConsoleComponent
+import com.chowder.Controller;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+public class ConsoleComponent extends JPanel
 {
+	public ConsoleComponent(Controller controller)
+	{
+		JLabel console = new JLabel("Application started");
+		controller.setConsole(console);
+		add(console);
+	}
 }

@@ -4,7 +4,8 @@ public class Interval
 {
 	float value;
 
-	Interval(float value) {
+	Interval(float value)
+	{
 		this.value = value;
 	}
 
