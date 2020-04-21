@@ -56,7 +56,7 @@ class Clicker extends Thread
 					}
 					highlightRow(i);
 					long sleep_time = getSleepTime(i);
-					console.setText(String.format("Sleeping for %ss", sleep_time / 1000));
+					console.setText(String.format("Sleeping for %ss", ((float) sleep_time / 1000)));
 					Thread.sleep(sleep_time);
 					click();
 				}
