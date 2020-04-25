@@ -27,7 +27,6 @@ public class AutoClicker
 		AppFrameComponent frame = new AppFrameComponent(TITLE);
 		AppDisplayComponent display = new AppDisplayComponent(controller);
 		AppControlsComponent controls = new AppControlsComponent(controller);
-		controller.setControlsComponent(controls);
 
 		//Adding the components to the frame.
 		frame.add(display);

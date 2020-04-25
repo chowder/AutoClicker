@@ -24,14 +24,19 @@ public class StartStopComponent extends JPanel
 					if (controller.start())
 					{
 						startButton.setText("Stop");
-						controller.setControlsEnabled(false);
+						getParent().setEnabled(false);
 					}
 					break;
 				case "Stop":
 					startButton.setText("Start");
 					controller.stop();
-					controller.setControlsEnabled(true);
+					getParent().setEnabled(true);
 			}
+		});
+
+		controller.setEnableControlsCallback(enabled -> {
+			getParent().setEnabled(enabled);
+			startButton.setText("Start");
 		});
 	}
 }

@@ -9,7 +9,7 @@ public class ConsoleComponent extends JPanel
 	public ConsoleComponent(Controller controller)
 	{
 		JLabel console = new JLabel("Application started");
-		controller.setConsole(console);
+		controller.setConsoleCallback(console::setText);
 		add(console);
 	}
 }

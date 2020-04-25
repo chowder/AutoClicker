@@ -3,6 +3,7 @@ package com.chowder.Components;
 import com.chowder.Components.Abstract.AbstractToggleablePanel;
 import com.chowder.Components.Controls.ConsoleComponent;
 import com.chowder.Components.Controls.IntervalsComponent;
+import com.chowder.Components.Controls.ParametersComponent;
 import com.chowder.Components.Controls.SettingsComponent;
 import com.chowder.Components.Controls.StartStopComponent;
 import com.chowder.Controller;
@@ -14,7 +15,8 @@ public class AppControlsComponent extends AbstractToggleablePanel
 	public AppControlsComponent(Controller controller)
 	{
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
+		setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
+		add(new ParametersComponent(controller));
 		add(new IntervalsComponent(controller));
 		add(new SettingsComponent(controller));
 		add(new StartStopComponent(controller));

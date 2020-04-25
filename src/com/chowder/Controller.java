@@ -1,43 +1,32 @@
 package com.chowder;
 
-import com.chowder.Components.AppControlsComponent;
-import java.awt.AWTException;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import javax.swing.DefaultListModel;
-import javax.swing.JLabel;
 import javax.swing.JList;
 
 public class Controller
 {
-	private JLabel console;
-	private Clicker clicker;
+	private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
+	private Future<?> currentClicker;
+
+	private DefaultListModel<Interval> intervals;
+	private JList<Interval> list;
 
 	private boolean cyclic = true;
 	private boolean gaussian = true;
 	private float timeout = -1;
 
-	private DefaultListModel<Interval> intervals;
-	private JList<Interval> list;
-	private AppControlsComponent controlsComponent;
 
-
-	public void addInterval(String interval)
-	{
-		if (interval.length() > 0)
-		{
-			try
-			{
-				float value = Float.parseFloat(interval);
-				intervals.addElement(new Interval(value));
-			}
-			catch (NumberFormatException e)
-			{
-				console.setText("Invalid input given.");
-				return;
-			}
-			console.setText("Added new interval");
-		}
-	}
+	private Consumer<String> consoleCallback;
+	private Consumer<Boolean> enableControlsCallback;
+	private BiConsumer<String, Object> updateParameter;
 
 	public void setDisplayList(JList<Interval> list)
 	{
@@ -49,56 +38,115 @@ public class Controller
 		this.intervals = intervals;
 	}
 
-	public void setConsole(JLabel console)
+	public void setConsoleCallback(Consumer<String> callback)
 	{
-		this.console = console;
+		consoleCallback = callback;
 	}
 
-	public void setControlsComponent(AppControlsComponent controlsComponent)
+	public void setEnableControlsCallback(Consumer<Boolean> callback)
 	{
-		this.controlsComponent = controlsComponent;
+		enableControlsCallback = callback;
 	}
 
-	public void clear()
+	public void setUpdateParameterCallback(BiConsumer<String, Object> callback)
 	{
-		intervals.clear();
-		console.setText("Cleared all intervals");
-	}
-
-	public void stop()
-	{
-		clicker.interrupt();
-	}
-
-	public boolean start()
-	{
-		if (intervals.size() <= 0)
-		{
-			console.setText("No intervals given");
-			return false;
-		}
-		try
-		{
-			clicker = new Clicker(intervals, console, list, gaussian, cyclic, timeout);
-		}
-		catch (AWTException e)
-		{
-			e.printStackTrace();
-		}
-		clicker.start();
-		return true;
+		updateParameter = callback;
 	}
 
 	public void setGaussian(boolean gaussian)
 	{
-		console.setText(String.format("Random mode %s", gaussian ? "enabled" : "disabled"));
+		consoleCallback.accept(String.format("Random mode %s", gaussian ? "enabled" : "disabled"));
 		this.gaussian = gaussian;
 	}
 
 	public void setCyclic(boolean cyclic)
 	{
-		console.setText(String.format("Cyclic mode %s", cyclic ? "enabled" : "disabled"));
+		consoleCallback.accept(String.format("Cyclic mode %s", cyclic ? "enabled" : "disabled"));
 		this.cyclic = cyclic;
+	}
+
+	public void setTimeout(String timeout)
+	{
+		if (timeout.length() > 0)
+		{
+			try
+			{
+				float value = Float.parseFloat(timeout);
+				if (value <= 0)
+				{
+					this.timeout = -1;
+					consoleCallback.accept("Timeout disabled");
+					updateParameter.accept("Timeout", "Disabled");
+				}
+				else
+				{
+					this.timeout = value;
+					consoleCallback.accept(String.format("Timeout after %s minutes", this.timeout));
+					updateParameter.accept("Timeout", this.timeout);
+				}
+			}
+			catch (NumberFormatException e)
+			{
+				consoleCallback.accept("Invalid timeout value given");
+			}
+		}
+	}
+
+	public void addInterval(String interval)
+	{
+		if (interval.length() > 0)
+		{
+			try
+			{
+				float value = Float.parseFloat(interval);
+				intervals.addElement(new Interval(value));
+				consoleCallback.accept("Added new interval");
+			}
+			catch (NumberFormatException e)
+			{
+				consoleCallback.accept("Invalid input given.");
+			}
+		}
+	}
+
+	public void clear()
+	{
+		intervals.clear();
+		timeout = -1;
+		consoleCallback.accept("Cleared all intervals");
+	}
+
+	public boolean start()
+	{
+		if (intervals.isEmpty())
+		{
+			consoleCallback.accept("No intervals given");
+			return false;
+		}
+		List<Interval> intervalList = Collections.list(intervals.elements());
+		Clicker clicker = new Clicker(intervalList, gaussian, cyclic, consoleCallback) {
+			@Override
+			void onComplete()
+			{
+				super.onComplete();
+				enableControlsCallback.accept(true);
+			}
+		};
+		currentClicker = executorService.submit(clicker);
+		if (timeout > 0)
+		{
+			executorService.schedule(() -> {
+				currentClicker.cancel(true);
+				consoleCallback.accept("Clicker thread stopped, timeout reached");
+			}, (long) (timeout * 60), TimeUnit.SECONDS);
+		}
+		return true;
+	}
+
+	public void stop()
+	{
+		currentClicker.cancel(true);
+		consoleCallback.accept("Clicker thread interrupted");
 	}
 
 	public void remove()
@@ -107,43 +155,7 @@ public class Controller
 		for (Interval i : selected)
 		{
 			intervals.removeElement(i);
-			console.setText(String.format("Removed interval: %ss", i.value));
-		}
-	}
-
-	public void setControlsEnabled(boolean enabled)
-	{
-		controlsComponent.setEnabled(enabled);
-	}
-
-	public void setTimeout(String timeout)
-	{
-		float value;
-		if (timeout.length() > 0)
-		{
-			try
-			{
-				value = Float.parseFloat(timeout);
-			}
-			catch (NumberFormatException e)
-			{
-				console.setText("Invalid timeout value given");
-				return;
-			}
-			if (value < 0)
-			{
-				console.setText("Timeout cannot be negative");
-			}
-			else if (value == 0)
-			{
-				this.timeout = 0;
-				console.setText("Timeout disabled");
-			}
-			else
-			{
-				this.timeout = value;
-				console.setText(String.format("Autoclicker will stop after %s minutes", this.timeout));
-			}
+			consoleCallback.accept(String.format("Removed interval: %ss", i.value));
 		}
 	}
 }
